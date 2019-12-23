@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="GBK"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	<!-- 定义c3p0数据源 -->
+	<bean id="dataSource"
+		class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close">
+		<!-- 指定连接数据库驱动 -->
+		<property name="driverClass" value="com.mysql.jdbc.Driver" />
+		<!-- 指定连接数据库url -->
+		<property name="jdbcUrl" value="jdbc:mysql://localhost:3306/vote" />
+		<!-- 指定连接数据库用户名-->
+		<property name="user" value="root" />
+		<!-- 指定连接数据库密码-->
+		<property name="password" value="123456" />
+	</bean>
+	<!-- 定义Hibernate的sessionFactory -->
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<!-- 指定数据源 -->
+		<property name="dataSource" ref="dataSource" />
+		<!-- 指定Hibernate映射文件 -->
+		<property name="mappingResources">
+			<list>
+				<value>Admin.hbm.xml</value>
+				<value>Vote.hbm.xml</value>
+				<value>Voter.hbm.xml</value>
+				<value>Votecontext.hbm.xml</value>
+			</list>
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<!-- 指定使用方言 -->
+				<prop key="hibernate.dialect">
+					org.hibernate.dialect.MySQLDialect
+				</prop>
+				<!-- 是否在控制台输出sql语句 -->
+				<prop key="show_sql">true</prop>
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+				<prop key="hibernate.jdbc.batch_size">20</prop>
+			</props>
+		</property>
+	</bean>
+	<!-- 定义事务管理 -->
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	<!-- 定义事务管理拦截器 -->
+	<bean id="transactionInterceptor"
+		class="org.springframework.transaction.interceptor.TransactionInterceptor">
+		<property name="transactionManager" ref="transactionManager" />
+		<property name="transactionAttributes">
+			<props>
+				<prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
+	<!-- 定义代理自动管理事务 -->
+	<bean id="ProxyCreator" class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
+		<!-- 指定需要Spring管理事务的Bean -->
+		<property name="beanNames">
+			<list>
+				<value>adminService</value>
+				<value>voteService</value>
+				<value>voteContextService</value>
+				<value>voterService</value>
+			</list>
+		</property>
+		<!-- 调用事务管理拦截器 -->
+		<property name="interceptorNames">
+			<list>
+				<value>transactionInterceptor</value>
+			</list>
+		</property>
+	</bean>
+	<!-- 依赖注入 -->
+	<bean id="adminService"
+		class="com.cjg.service.impl.AdminServiceImpl">
+		<property name="adminDao" ref="adminDao" />
+	</bean>
+	<bean id="voteService"
+		class="com.cjg.service.impl.VoteServiceImpl">
+		<property name="voteDao" ref="voteDao" />
+	</bean>
+	<bean id="voteContextService"
+		class="com.cjg.service.impl.VoteContextServiceImpl">
+		<property name="voteContextDao" ref="voteContextDao" />
+	</bean>
+	<bean id="voterService"
+		class="com.cjg.service.impl.VoterServiceImpl">
+		<property name="voterDao" ref="voterDao" />
+	</bean>
+
+	<bean id="adminDao" class="com.cjg.dao.impl.AdminDaoImpl">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	<bean id="voteDao" class="com.cjg.dao.impl.VoteDaoImpl">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	<bean id="voteContextDao"
+		class="com.cjg.dao.impl.VotecontextDaoImpl">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	<bean id="voterDao" class="com.cjg.dao.impl.VoterDaoImpl">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<bean id="login" class="com.cjg.action.admin.Login">
+		<property name="adminService" ref="adminService" />
+		<property name="voteService" ref="voteService" />
+	</bean>
+	<bean id="newvote" class="com.cjg.action.vote.NewVote">
+		<property name="voteService" ref="voteService" />
+	</bean>
+	<bean id="newVoteContext"
+		class="com.cjg.action.vote.NewVoteContext">
+		<property name="voteContextService" ref="voteContextService" />
+		<property name="voteService" ref="voteService" />
+	</bean>
+	<bean id="showVote" class="com.cjg.action.vote.ShowVote">
+		<property name="voteContextService" ref="voteContextService" />
+	</bean>
+	<bean id="searchVote" class="com.cjg.action.vote.SearchVote">
+		<property name="voteService" ref="voteService" />
+		<property name="adminService" ref="adminService" />
+	</bean>
+	<bean id="findVote" class="com.cjg.action.vote.FindVote">
+		<property name="voteService" ref="voteService" />
+		<property name="adminService" ref="adminService" />
+	</bean>
+	<bean id="findOneVote"
+		class="com.cjg.action.vote.FindOneVote">
+		<property name="voteService" ref="voteService" />
+	</bean>
+	<bean id="delVoteContext"
+		class="com.cjg.action.vote.DelVoteContext">
+		<property name="voteContextService" ref="voteContextService" />
+	</bean>
+	<bean id="addOneVoteContext"
+		class="com.cjg.action.vote.AddOneVoteContext">
+		<property name="voteContextService" ref="voteContextService" />
+	</bean>
+	<bean id="updateVoteContext"
+		class="com.cjg.action.vote.UpdateVoteContext">
+		<property name="voteContextService" ref="voteContextService" />
+	</bean>
+	<bean id="updateVote" class="com.cjg.action.vote.UpdateVote">
+		<property name="voteService" ref="voteService" />
+	</bean>
+	<bean id="voting" class="com.cjg.action.vote.Voting">
+		<property name="voteContextService" ref="voteContextService" />
+	</bean>
+	<bean id="showVoting" class="com.cjg.action.vote.ShowVoting">
+		<property name="voteService" ref="voteService" />
+	</bean>
+	<bean id="showVotingContext"
+		class="com.cjg.action.vote.ShowVotingContext">
+		<property name="voteContextService" ref="voteContextService" />
+	</bean>
+	<bean id="showVotingResult"
+		class="com.cjg.action.vote.ShowVotingResult">
+		<property name="voteContextService" ref="voteContextService" />
+	</bean>
+	<bean id="changepwd" class="com.cjg.action.admin.ChangePwd">
+		<property name="adminService" ref="adminService" />
+	</bean>
+	<bean id="createadmin"
+		class="com.cjg.action.admin.Createadmin">
+		<property name="adminService" ref="adminService" />
+	</bean>
+	<bean id="checkVoter"
+		class="com.cjg.action.voter.CheckVoter">
+		<property name="voterService" ref="voterService" />
+	</bean>
+	<bean id="addVoter" class="com.cjg.action.voter.AddVoter">
+		<property name="voterService" ref="voterService" />
+	</bean>
+	<bean id="logout" class="com.cjg.action.admin.Logout"/>
+</beans>

@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="GBK"?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+	<include file="struts-default.xml" />
+	<constant name="struts.i18n.encoding" value="GBK" />
+	<constant name="struts.custom.i18n.resources" value="globalMessages"/>
+	<package name="default" extends="struts-default">
+		<interceptors>
+			<interceptor name="SessionInterceptor"
+				class="com.cjg.action.interceptors.SessionInterceptor" />
+		</interceptors>
+		<global-results>
+			<result name="loginPage">/login.jsp</result>
+		</global-results>
+		<action name="loginValidate"
+			class="com.cjg.action.validators.LoginValidate">
+			<result name="input">/login.jsp</result>
+			<result type="chain">login</result>
+		</action>
+		<action name="login" class="login">
+			<result>/jsp/frame/frame.jsp</result>
+			<result name="error">/login.jsp</result>
+		</action>
+		<action name="newvoteValidate"
+			class="com.cjg.action.validators.NewvoteValidate">
+			<result name="input">/jsp/vote/newvote.jsp</result>
+			<result type="chain">newVote</result>
+			<interceptor-ref name="defaultStack" />
+			<interceptor-ref name="SessionInterceptor" />
+		</action>
+		<action name="newVote" class="newvote">
+			<result name="success">/jsp/vote/newvotecontext.jsp</result>
+			<result name="addVoteError">/jsp/vote/newvote.jsp</result>
+			<result name="invalid.token">index.jsp</result>
+			<interceptor-ref name="defaultStack" />
+			<interceptor-ref name="tokenSession" />
+			<interceptor-ref name="SessionInterceptor" />
+		</action>
+		<action name="newVoteContext" class="newVoteContext">
+			<result type="chain">showVote</result>
+			<interceptor-ref name="defaultStack" />
+			<interceptor-ref name="tokenSession" />
+			<interceptor-ref name="SessionInterceptor" />
+		</action>
+		<action name="showVoting" class="showVoting">
+			<result name="voteclose">/jsp/vote/voteclose.jsp</result>
+			<result type="chain">showVotingContext</result>
+		</action>
+		<action name="showVotingContext" class="showVotingContext">
+			<result>/jsp/vote/showvoting.jsp</result>
+		</action>
+		<action name="checkVoter" class="checkVoter">
+			<result type="chain">voting</result>
+			<result name="votererror" type="chain">showVotingResult</result>
+		</action>
+		<action name="voting" class="voting">
+			<result type="chain">addVoter</result>
+		</action>
+		<action name="addVoter" class="addVoter">
+			<result type="chain">showVotingResult</result>
+		</action>
+		<action name="showVotingResult" class="showVotingResult">
+			<result>/jsp/vote/showvotingresult.jsp</result>
+		</action>
+		<action name="showVote" class="showVote">
+			<result name="showvote">/jsp/vote/managevote.jsp</result>
+			<interceptor-ref name="defaultStack" />
+			<interceptor-ref name="SessionInterceptor" />
+		</action>
+		<action name="searchVoteValidate"
+			class="com.cjg.action.validators.SearchVoteValidate">
+			<result name="input">/jsp/vote/searchvote.jsp</result>
+			<result type="chain">searchVote</result>
+		</action>
+		<action name="searchVote" class="searchVote">
+			<result>/jsp/vote/showresult.jsp</result>
+			<result name="searchnull">/jsp/vote/searchvote.jsp</result>
+			<interceptor-ref name="defaultStack" />
+			<interceptor-ref name="SessionInterceptor" />
+		</action>
+		<action name="findVote" class="findVote">
+			<result>/jsp/vote/showresult.jsp</result>
+			<result name="searchnull">/jsp/vote/searchvote.jsp</result>
+			<interceptor-ref name="defaultStack" />
+			<interceptor-ref name="SessionInterceptor" />
+		</action>
+		<action name="findOneVote" class="findOneVote">
+			<result type="redirect-action">showVote</result>
+			<interceptor-ref name="defaultStack" />
+			<interceptor-ref name="SessionInterceptor" />
+		</action>
+		<action name="delVoteContext" class="delVoteContext">
+			<result type="redirect-action">
+				findOneVote?voteId=${voteId}
+			</result>
+			<result name="delContextError">
+				/jsp/vote/managevote.jsp
+			</result>
+			<result name="input">
+				/jsp/vote/managevote.jsp
+			</result><!--
+			
+			<interceptor-ref name="defaultStack" />
+			<interceptor-ref name="SessionInterceptor" />
+		--></action>
+		<action name="addOneVoteContext" class="addOneVoteContext">
+			<result type="redirect-action">
+				findOneVote?voteId=${voteId}
+			</result>
+			<interceptor-ref name="defaultStack" />
+			<interceptor-ref name="SessionInterceptor" />
+		</action>
+		<action name="updateVoteContext" class="updateVoteContext">
+			<result type="redirect-action">
+				updateVote?type=${type}&amp;publish=${publish}
+			</result>
+			<interceptor-ref name="defaultStack" />
+			<interceptor-ref name="tokenSession" />
+			<interceptor-ref name="SessionInterceptor" />
+		</action>
+		<action name="updateVote" class="updateVote">
+			<result type="redirect">findVote.action</result>
+			<interceptor-ref name="defaultStack" />
+			<interceptor-ref name="SessionInterceptor" />
+		</action>
+		<action name="changepwdValidate"
+			class="com.cjg.action.validators.ChangePwdValidate">
+			<result name="input">/jsp/admin/changepwd.jsp</result>
+			<result type="chain">changepwd</result>
+			<interceptor-ref name="defaultStack" />
+			<interceptor-ref name="SessionInterceptor" />
+		</action>
+		<action name="changepwd" class="changepwd">
+			<result name="success">
+				/jsp/admin/changepwdsuccess.jsp
+			</result>
+			<result name="pwderror">/jsp/admin/changepwd.jsp</result>
+			<interceptor-ref name="defaultStack" />
+			<interceptor-ref name="SessionInterceptor" />
+		</action>
+		<action name="createadminValidate"
+			class="com.cjg.action.validators.CreateAdminValidate">
+			<result name="input">/jsp/admin/createadmin.jsp</result>
+			<result type="chain">createadmin</result>
+			<interceptor-ref name="defaultStack" />
+			<interceptor-ref name="SessionInterceptor" />
+		</action>
+		<action name="createadmin" class="createadmin">
+			<result>/jsp/admin/adminmanage.jsp</result>
+			<result name="createAdminError">/jsp/admin/createadmin.jsp</result>
+			<interceptor-ref name="defaultStack" />
+			<interceptor-ref name="tokenSession" />
+			<interceptor-ref name="SessionInterceptor" />
+		</action>
+		<action name="logout" class="logout">
+			<result type="redirect">/login.jsp</result>
+		</action>
+	</package>
+</struts>

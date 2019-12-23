@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="GBK"?>
+<!DOCTYPE validators PUBLIC "-//OpenSymphony Group//XWork Validator 1.0.2//EN"
+	"http://www.opensymphony.com/xwork/xwork-validator-1.0.2.dtd">
+
+<validators>
+	<field name="title">
+		<field-validator type="requiredstring">
+			<param name="trim">true</param>
+			<message>${getText("error.title.null")}</message>
+		</field-validator>
+	</field>
+	<field name="contextcount">
+		<field-validator type="required">
+			<message>${getText("error.contextcount.null")}</message>
+		</field-validator>
+		<field-validator type="int">
+			<param name="max">10</param>
+			<param name="min">2</param>
+			<message>${getText("error.vccount.error")}</message>
+		</field-validator>
+	</field>
+</validators>
